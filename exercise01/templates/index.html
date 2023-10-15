@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <title>Awesome File Uploader</title>
+</head>
+<body>
+    <header>
+        <h1>Awesome File Uploader</h1>
+    </header>
+    <div class="upload-section">
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <label for="myFile">Select a File:</label>
+            <input type="file" id="myFile" name="filename" accept="image/*" required>
+            <label for="description">Description:</label>
+            <input type="text" id="description" name="description">
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+    <div class="tag-section">
+        <h2>Add Key-Value Tags</h2>
+        <form action="/add-tag" method="post">
+            <label for="tagFile">File name:</label>
+            <input type="text" id="tagFile" name="tagFile">
+            <label for="tagKey">Key:</label>
+            <input type="text" id="tagKey" name="tagKey">
+            <label for="tagValue">Value:</label>
+            <input type="text" id="tagValue" name="tagValue">
+            <button type="submit">Add Tag</button>
+        </form>
+    </div>
+    <div class="search-section">
+        <h2>Search Files</h2>
+        <form action="/search" method="get">
+            <label for="searchValue">Search Query:</label>
+            <input type="text" id="searchValue" name="searchValue">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    <div class="search-results">
+        <h2>Search Results</h2>
+        <ul>
+            {% for file_details, tags in searched_files %}
+                <li>
+                    filename: {{ file_details["name"]}}
+                    <ul>
+                        <li>type: {{ file_details["type"] }}</li>
+                        <li>description: {{ file_details["description"] }}</li>
+                        <li>creation date: {{ file_details["creation_date"] }}</li>
+                        {% for tag in tags %}
+                        <li>tag: {{tag["tag_key"]}}={{tag["tag_value"]}}</li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
