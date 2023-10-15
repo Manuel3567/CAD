@@ -19,6 +19,7 @@ cucumber-report.json
 **/.vscode-test/**
 **/.vscode test/**
 **/.vscode-smoke/**
+settings.json
 **/.venv*/
 port.txt
 precommit.hook
@@ -47,3 +48,5 @@ dist/**
 *.xlf
 package.nls.*.json
 l10n/
+exercise01/media/*
+.env

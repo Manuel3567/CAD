@@ -20,6 +20,7 @@ itsdangerous==2.1.2
 Jinja2==3.1.2
 MarkupSafe==2.1.3
 psycopg2==2.9.9
+python-dotenv==1.0.0
 Werkzeug==3.0.0
 ```
 - Paths:
