@@ -4,8 +4,9 @@ load_dotenv()  # take environment variables from .env.
 
 
 import os
-from flask import Flask, flash, request, redirect, url_for, render_template
+from flask import Flask, flash, request, redirect, url_for, render_template, send_from_directory
 from werkzeug.utils import secure_filename
+import psycopg2
 
 UPLOAD_FOLDER = './media'
 USER = 'postgres'
@@ -19,6 +20,7 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'mp4', 'py'}
 EXTENSION_LOGICAL_MAP = {'txt': 'Document', 'pdf': 'Document', 'png': 'Picture', 'jpg': 'Picture', 'jpeg': 'Picture', 'gif': 'Video', 'mp4': 'Video'}
 
 app = Flask(__name__)
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['DATABASE'] = DATABASE
 
@@ -87,7 +89,10 @@ def add_tag():
     sql = f"""
         INSERT INTO tag (file_name, tag_key, tag_value)
         VALUES ('{filename}', '{tag_key}', '{tag_value}');"""
-    db.execute(sql)
+    try:
+        db.execute(sql)
+    except psycopg2.errors.ForeignKeyViolation:
+        pass
     
     return redirect(url_for("index"))
 
@@ -98,3 +103,9 @@ def search():
     results_raw = db.execute(sql, params=(f"%{search_value}%", f"%{search_value}%"))
     results = [r['name'] for r in results_raw]
     return redirect(url_for("index", results = results))
+
+@app.route("/download/<path:name>", methods = ["GET"])
+def download(name):
+    return send_from_directory(
+        app.config['UPLOAD_FOLDER'], name, as_attachment=True
+    )

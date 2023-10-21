@@ -44,7 +44,8 @@
         <ul>
             {% for file_details, tags in searched_files %}
                 <li>
-                    filename: {{ file_details["name"]}}
+                    filename: <a href="/download/{{file_details['name']}}">{{ file_details["name"]}}</a>
+    
                     <ul>
                         <li>type: {{ file_details["type"] }}</li>
                         <li>description: {{ file_details["description"] }}</li>
