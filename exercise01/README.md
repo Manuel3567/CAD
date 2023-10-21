@@ -93,4 +93,6 @@ sudo shutdown -r now
 Direction	Ether Type	IP Protocol	Port Range	Remote IP Prefix 
 Ingress	IPv6	TCP	80 (HTTP)	::/0 
 
-16. Enjoy the server
+16. Create a snapshot in bwcloud
+
+17. Enjoy the server
