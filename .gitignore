@@ -51,3 +51,7 @@ l10n/
 exercise01/media/*
 .env
 *.pem
+exercise01/secrets/*
+*.docx
+*.pdf
+extensions.json
