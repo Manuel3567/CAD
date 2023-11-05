@@ -96,3 +96,61 @@ Ingress	IPv6	TCP	80 (HTTP)	::/0
 16. Create a snapshot in bwcloud
 
 17. Enjoy the server
+
+# Abgabe3
+
+for GCP deployment perform the following things:
+
+## image creation
+in GCP create a vm using CentOS 7
+### local ssh setup
+```
+ssh-keygen
+ssh manuel@publicIP
+```
+### commands on gcp vm
+```
+sudo yum -y update
+sudo yum -y install docker
+
+sudo systemctl enable docker
+sudo groupadd docker
+sudo usermod -aG docker -a $USER
+sudo systemctl restart docker
+sudo shutdown -r now
+```
+wait for vm restart and connect via ssh again then continue with the following commands
+```
+sudo sh -c 'cat << EOF > /etc/systemd/system/awesomefileuploader.service
+[Unit]
+Description=awesomefileuploader
+After=docker.service
+Wants=docker.service
+
+[Service]
+Type=notify
+ExecStartPre=/usr/bin/docker run -d --network=host --env-file /home/manuel/.env manuelhtwg/awesomefileuploader:latest flask init-db
+ExecStart=/usr/bin/docker run -d --network=host --env-file /home/manuel/.env manuelhtwg/awesomefileuploader:latest
+Restart=always
+NotifyAccess=all
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target
+EOF'
+
+sudo systemctl daemon-reload
+sudo systemctl enable awesomefileuploader.service
+```
+create an image in gcp called fileuploaderimg
+## infrastructure deployment
+```
+cd infrastructure
+terraform apply -var-file=variables.tfvars
+```
+
+## infrastructure destruction
+```
+cd infrastructure
+terraform destroy -var-file=variables.tfvars
+```

@@ -55,3 +55,9 @@ exercise01/secrets/*
 *.docx
 *.pdf
 extensions.json
+*.txt
+terraform.*
+.terraform.*
+.terraform/*
+*.exe
+variables.tfvars
