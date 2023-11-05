@@ -2,16 +2,15 @@ from dotenv import load_dotenv
 
 load_dotenv()  # take environment variables from .env.
 
-
 import os
-from flask import Flask, flash, request, redirect, url_for, render_template, send_from_directory
+from flask import Flask, flash, request, redirect, url_for, render_template, send_file
 from werkzeug.utils import secure_filename
+from io import BytesIO
 import psycopg2
 
-UPLOAD_FOLDER = './media'
 USER = 'postgres'
 PASSWORD = os.environ.get('DATABASE_PASSWORD')
-HOST = '127.0.0.1'
+HOST = os.environ.get('DATABASE_HOST')
 PORT = '5432'
 DATABASE_NAME = 'file_uploader'
 
@@ -19,13 +18,17 @@ DATABASE = f'postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE_NAME}'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'mp4', 'py'}
 EXTENSION_LOGICAL_MAP = {'txt': 'Document', 'pdf': 'Document', 'png': 'Picture', 'jpg': 'Picture', 'jpeg': 'Picture', 'gif': 'Video', 'mp4': 'Video'}
 
+BUCKET_NAME = os.environ.get('BUCKET_NAME')
+
 app = Flask(__name__)
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['DATABASE'] = DATABASE
 
 import db
 db.init_app(app)
+
+import gcp
+
 
 @app.route("/", methods = ["GET"])
 def index():
@@ -70,7 +73,7 @@ def upload():
         description = request.form.get('description', '')
         file_extension = filename.split('.')[-1]
         file_type = EXTENSION_LOGICAL_MAP[file_extension]
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        gcp.upload(file, BUCKET_NAME, filename)
         sql = f"""
                    INSERT INTO file (type, name, description)
                    VALUES ('{file_type}', '{filename}', '{description}');"""
@@ -106,6 +109,7 @@ def search():
 
 @app.route("/download/<path:name>", methods = ["GET"])
 def download(name):
-    return send_from_directory(
-        app.config['UPLOAD_FOLDER'], name, as_attachment=True
+    content = gcp.download(BUCKET_NAME, name)
+    return send_file(
+        BytesIO(content), as_attachment=True, download_name=name
     )

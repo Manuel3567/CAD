@@ -1,0 +1,3 @@
+DROP TABLE tag;
+
+DROP TABLE file;

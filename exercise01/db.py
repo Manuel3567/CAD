@@ -38,7 +38,7 @@ def close_db(e=None):
 def init_db():
     db = get_db()
 
-    with current_app.open_resource('schema.sql') as f:
+    with current_app.open_resource('createschema.sql') as f:
         sql = f.read()
         with db.cursor() as cursor:
             cursor.execute(sql)
@@ -47,9 +47,25 @@ def init_db():
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
+    app.cli.add_command(del_db_command)
+
 
 @click.command('init-db')
 def init_db_command():
     """Clear the existing data and create new tables."""
     init_db()
-    click.echo('Initialized the database.')
+    click.echo('Created the tables.')
+
+def del_db():
+    db = get_db()
+
+    with current_app.open_resource('dropschema.sql') as f:
+        sql = f.read()
+        with db.cursor() as cursor:
+            cursor.execute(sql)
+        db.commit()
+
+@click.command('del-db')
+def del_db_command():
+    del_db()
+    click.echo('Deleted tables.')
