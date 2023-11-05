@@ -99,6 +99,9 @@ Ingress	IPv6	TCP	80 (HTTP)	::/0
 
 # Abgabe3
 
+code can be found here: [https://github.com/Manuel3567/CAD/tree/main/exercise01](https://github.com/Manuel3567/CAD/tree/main/exercise01)
+
+
 for GCP deployment perform the following things:
 
 ## image creation
@@ -146,11 +149,11 @@ create an image in gcp called fileuploaderimg
 ## infrastructure deployment
 ```
 cd infrastructure
-terraform apply -var-file=variables.tfvars
+terraform apply -var-file variables.tfvars
 ```
 
 ## infrastructure destruction
 ```
 cd infrastructure
-terraform destroy -var-file=variables.tfvars
+terraform destroy -var-file variables.tfvars
 ```
