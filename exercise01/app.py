@@ -6,15 +6,7 @@ import os
 from flask import Flask, flash, request, redirect, url_for, render_template, send_file
 from werkzeug.utils import secure_filename
 from io import BytesIO
-import psycopg2
 
-USER = 'postgres'
-PASSWORD = os.environ.get('DATABASE_PASSWORD')
-HOST = os.environ.get('DATABASE_HOST')
-PORT = '5432'
-DATABASE_NAME = 'file_uploader'
-
-DATABASE = f'postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE_NAME}'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'mp4', 'py'}
 EXTENSION_LOGICAL_MAP = {'txt': 'Document', 'pdf': 'Document', 'png': 'Picture', 'jpg': 'Picture', 'jpeg': 'Picture', 'gif': 'Video', 'mp4': 'Video'}
 
@@ -22,10 +14,6 @@ BUCKET_NAME = os.environ.get('BUCKET_NAME')
 
 app = Flask(__name__)
 
-app.config['DATABASE'] = DATABASE
-
-import db
-db.init_app(app)
 
 import gcp
 
@@ -38,19 +26,21 @@ def index():
 
     if search_results:
         for search_result in search_results:
-            sql = f"""
-            select file.name, file.type, file.creation_date, file.description from file where file.name = '{search_result}'
             """
-            file_details = db.execute(sql)[0]
-            print(file_details)
-            
-            sql = f"""
-            select tag.tag_key, tag.tag_value from tag where tag.file_name = '{search_result}'
+            search_result = "example.txt"
+            result = {
+              "filename": "example.txt",
+              "description": "exampledescription", 
+              "type": "Document",
+              "creation_date": 2023-01-01,
+              "tags": [{"key": "location", "value": "town"}]
+            }
             """
-            tags = db.execute(sql)
-            results.append(
-                (file_details, tags)
-            )
+            result = gcp.get_metadata_from_filename(search_result)
+            result["filename"] = search_result
+            print(search_result)
+            print(result)
+            results.append(result)
 
     return render_template("index.html", searched_files = results)
 
@@ -74,10 +64,7 @@ def upload():
         file_extension = filename.split('.')[-1]
         file_type = EXTENSION_LOGICAL_MAP[file_extension]
         gcp.upload(file, BUCKET_NAME, filename)
-        sql = f"""
-                   INSERT INTO file (type, name, description)
-                   VALUES ('{file_type}', '{filename}', '{description}');"""
-        db.execute(sql)
+        gcp.set_metadata(filename, file_type, description)
     
     return redirect(url_for("index"))
 
@@ -88,23 +75,14 @@ def add_tag():
 
     tag_key = request.form.get('tagKey', '')
     tag_value = request.form.get('tagValue', '')
+    gcp.set_tag(filename, tag_key, tag_value)
 
-    sql = f"""
-        INSERT INTO tag (file_name, tag_key, tag_value)
-        VALUES ('{filename}', '{tag_key}', '{tag_value}');"""
-    try:
-        db.execute(sql)
-    except psycopg2.errors.ForeignKeyViolation:
-        pass
-    
     return redirect(url_for("index"))
 
 @app.route("/search", methods = ["GET"])
 def search():
     search_value = request.args.get('searchValue', '')
-    sql = "SELECT name FROM file WHERE name LIKE %s OR description LIKE %s"
-    results_raw = db.execute(sql, params=(f"%{search_value}%", f"%{search_value}%"))
-    results = [r['name'] for r in results_raw]
+    results = gcp.search(search_value)
     return redirect(url_for("index", results = results))
 
 @app.route("/download/<path:name>", methods = ["GET"])

@@ -42,16 +42,16 @@
     <div class="search-results">
         <h2>Search Results</h2>
         <ul>
-            {% for file_details, tags in searched_files %}
+            {% for file in searched_files %}
                 <li>
-                    filename: <a href="/download/{{file_details['name']}}">{{ file_details["name"]}}</a>
+                    filename: <a href="/download/{{file['filename']}}">{{ file["filename"]}}</a>
     
                     <ul>
-                        <li>type: {{ file_details["type"] }}</li>
-                        <li>description: {{ file_details["description"] }}</li>
-                        <li>creation date: {{ file_details["creation_date"] }}</li>
-                        {% for tag in tags %}
-                        <li>tag: {{tag["tag_key"]}}={{tag["tag_value"]}}</li>
+                        <li>type: {{ file["filetype"] }}</li>
+                        <li>description: {{ file["description"] }}</li>
+                        <li>creation date: {{ file["creation_date"] }}</li>
+                        {% for tag in file["tags"] %}
+                        <li>tag: {{tag["key"]}}={{tag["value"]}}</li>
                         {% endfor %}
                     </ul>
                 </li>

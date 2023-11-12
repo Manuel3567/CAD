@@ -1,6 +1,6 @@
 FROM python:3.10-alpine
 WORKDIR /app
-COPY requirements.txt createschema.sql dropschema.sql app.py db.py gcp.py ./
+COPY requirements.txt app.py gcp.py ./
 COPY templates/ ./templates
 COPY static/ ./static
 RUN pip3 install -r requirements.txt

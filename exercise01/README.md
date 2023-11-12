@@ -99,8 +99,6 @@ Ingress	IPv6	TCP	80 (HTTP)	::/0
 
 # Abgabe3
 
-code can be found here: [https://github.com/Manuel3567/CAD/tree/main/exercise01](https://github.com/Manuel3567/CAD/tree/main/exercise01)
-
 
 for GCP deployment perform the following things:
 
@@ -156,4 +154,36 @@ terraform apply -var-file variables.tfvars
 ```
 cd infrastructure
 terraform destroy -var-file variables.tfvars
+```
+
+# Abgabe 4
+
+code can be found here: [https://github.com/Manuel3567/CAD/tree/main/exercise01](https://github.com/Manuel3567/CAD/tree/main/exercise01)
+
+
+We switched our architecture from load balancer, VMs + autoscaling group, PostgresQL (relational db)
+to a PaaS Model with Cloud Run and Firestore (NoSQL db).
+We implemented the changes in terraform by modifying our infrastructure/main.tf file.
+On the application side (app.py) we replaced db.py with functions in gcp.py that deal with the NoSQL db.
+Due to the tight integration of firestore with gcp we were able to remove a lot of environment variables required by our application.
+
+To replicate the setup you need to create a new gcp project in your account, replace all the hard coded project ids in the main.tf and replace the bucket name inside main.tf with a globally unique name.
+
+## Infrastructure Deployment
+
+```
+cd infrastructure
+terraform apply
+```
+
+## Infrastructure Destruction
+
+```
+terraform destroy
+```
+
+Note that terraform was not able to delete the firestore database. If you want to delete it you need to execute the following command.
+
+```
+gcloud alpha firestore databases delete --database="(default)"
 ```
