@@ -1,4 +1,4 @@
-# Specs
+# Abgabe1
 - Operating System: Windows 11
 
 - Programming language: Python, SQL, HTML + CSS
