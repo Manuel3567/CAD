@@ -48,14 +48,13 @@ dist/**
 *.xlf
 package.nls.*.json
 l10n/
-exercise01/media/*
+media/*
 .env
 *.pem
-exercise01/secrets/*
+secrets/*
 *.docx
 *.pdf
 extensions.json
-*.txt
 terraform.*
 .terraform.*
 .terraform/*
